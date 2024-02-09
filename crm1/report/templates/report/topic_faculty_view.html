@@ -1,0 +1,203 @@
+{% extends 'report/main.html' %}
+
+{% block content %}
+
+
+<body>
+    <h2>Topics Related to {{ faculty.uname }}</h2>
+    <div class="row">
+        <div class="col-12 text-right">
+            <button class="add-btn btn btn-success mt-3">Add New Topic</button>
+        </div>
+    </div>
+    <div class="modal fade" id="addTopicModal" tabindex="-1" role="dialog" aria-labelledby="addTopicModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTopicModalLabel">Add New Topic</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form for adding new topic -->
+                    <form id="addTopicForm">
+                        <div class="form-group">
+                            <label for="topic_name">Topic Name</label>
+                            <input type="text" class="form-control" id="topic_name" name="topic_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dept">Department</label>
+                            <select class="form-control" id="dept" name="dept" required>
+                                <option value="none">----</option>
+                                <option value="civil">Civil</option>
+                                <option value="mech">Mechanical</option>
+                                <option value="eee">EEE</option>
+                                <option value="ece">ECE</option>
+                                <option value="cse">CSE</option>
+                                <option value="ai_ds">AI&DS</option>
+                                <option value="ds">DS</option>
+                                <option value="crt">CRT</option>
+                                <option value="hns">H&S</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sem">Semester</label>
+                            <select class="form-control" id="sem" name="sem" required>
+                                <option value="none">----</option>
+                                <option value="1-1">I-I</option>
+                                <option value="1-2">I-II</option>
+                                <option value="2-1">II-I</option>
+                                <option value="2-2">II-II</option>
+                                <option value="3-1">III-I</option>
+                                <option value="3-2">III-II</option>
+                                <option value="4-1">IV-I</option>
+                                <option value="4-2">IV-II</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="target_date">Target Date</label>
+                            <input type="date" class="form-control" id="target_date" name="target_date">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="ns">NS</option>
+                                <option value="co">CO</option>
+                                
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="remarks">Remarks</label>
+                            <textarea class="form-control" id="remarks" name="remarks"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Lesson Plan</th>
+                <th>Topic ID</th>
+                <th>Topic Name</th>
+                <th>Department</th>
+                <th>Semester</th>
+                <th>Target Date</th>
+                <th>Status</th>
+                <th>Remarks</th>
+                <!-- Add more fields as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in topic_data %}
+                <tr>
+                    <td>{{ data.lesson_plan.name }}</td>
+                    <td>{{ data.topic_id }}</td>
+                    <td>{{ data.topic_name }}</td>
+                    <td>{{ data.dept }}</td>
+                    <td>{{ data.sem }}</td>
+                    <td>{{ data.target_date }}</td>
+                    <td>{{ data.status }}</td>
+                    <td>{{ data.remarks }}</td>
+                    <!-- Add more fields as needed -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script>
+        <!-- Add this code after including jQuery and Bootstrap JS -->
+
+$(document).ready(function () {
+    // Function to handle showing the modal when the add button is clicked
+    $('.add-btn').click(function () {
+        // Show the addTopicModal when the button is clicked
+        $('#addTopicModal').modal('show');
+    });
+
+    // Submit new topic form
+    $('#addTopicForm').submit(function (event) {
+        event.preventDefault();
+
+        // Get form data
+        var formData = $(this).serialize();
+
+        // Format date to YYYY-MM-DD or set to None if not provided
+        var targetDate = $('#target_date').val();
+        var formattedDate = formatDate(targetDate);
+        
+        // Append the formatted date to the formData
+        formData += '&target_date=' + formattedDate;
+        console.log(formData)
+
+        // Perform an AJAX request to add new topic information
+        fetch('/report/add-topic/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.message) {
+                // Optionally, update the UI or provide feedback to the user
+                alert('Topic information added successfully!');
+                // Reload the page or update the table with the new data
+                location.reload();
+            } else if (data.errors) {
+                // Handle validation errors if any
+                console.error(data.errors);
+                alert('Error adding topic information. Please check the form data.');
+            } else {
+                alert('Unknown error occurred.');
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            alert('Error adding topic information');
+        })
+        .finally(() => {
+            // Hide the add-topic-card after submission
+            $('#add-topic-card').hide();
+        });
+    });
+
+    // Your existing JavaScript code...
+
+    // Function to format date to YYYY-MM-DD or return empty string if not provided
+    function formatDate(dateString) {
+        var date = new Date(dateString);
+        return isNaN(date) ? 'None' : date.toISOString().split('T')[0];
+    }
+});
+
+// Function to get CSRF token
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+    </script>
+
+{% endblock %}

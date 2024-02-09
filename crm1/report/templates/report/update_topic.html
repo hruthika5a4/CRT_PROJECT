@@ -1,0 +1,13 @@
+<!-- templates/report/update_topic.html -->
+{% extends 'report/main.html' %}
+{% load static %}
+
+{% block content %}
+    <h2>Update Topic</h2>
+    <form method="post" action="{% url 'update_topic1' topic.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Update</button>
+    </form>
+    <a href="{% url 'faculty_dashboard' %}">Back to Dashboard</a>
+{% endblock %}

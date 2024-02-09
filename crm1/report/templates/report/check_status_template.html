@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Status Template</title>
+</head>
+<body>
+    <h1>'ns' topics with future target date checked at {{ timestamp }}</h1>
+    {% if ns_topics %}
+        <ul>
+            {% for topic in ns_topics %}
+                <li>{{ topic.title }} - {{ topic.target_date }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No 'ns' topics with future target date found.</p>
+    {% endif %}
+</body>
+</html>

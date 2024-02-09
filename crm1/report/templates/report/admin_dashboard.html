@@ -1,0 +1,253 @@
+{% extends 'report/main.html' %}
+{% load static %}
+{% block content %}
+{% include 'report/admin_navbar.html' %}
+<br>
+<div class="row">
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-center text-white mb-3" id="total-orders">
+                <div class="card-header">
+                    <h5 class="card-title"><a href="{% url 'faculty_list' %}">View Teachers</a>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">{{ total_users_count }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-center text-white mb-3" id="orders-delivered">
+
+                <div class="card-header">
+                    <h5 class="card-title"><a href="{% url 'lesson_plan_list' %}">View Lesson Plans Taken</a></h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">{{ total_lesson_plans_count }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col-md">
+            <div class="card text-center text-white mb-3" id="orders-pending">
+                <div class="card-header">
+                    <h5 class="card-title"><a href="{% url 'topic_list' %}">View Topics Taken</a></h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">{{ total_topics_count }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+
+<div class="row">
+    <div class="col">
+        <div class="card card-body">
+
+            <form method="get" class="form-inline">
+                {% for field in myFilter.form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                    </div>
+                {% endfor %}
+                <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<br>
+<!-- <button id="exportBtn" class="btn btn-primary">Export to Excel</button> -->
+<button id="exportToPDF" class="btn btn-primary" >Export to PDF</button>
+
+<br>
+
+<div class="row" id="export_element">
+    <div class="col-md">
+        <div class="card card-body">
+            <table id="topicTable" class="table table-bordered table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Faculty</th>
+                        <th>Lesson Plan</th>
+                        <th>Branch</th>
+                        <th>Sem</th>
+                        <th class="text-center">Topic</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lesson_plan in lesson_plan_details %}
+                    <tr>
+                        <td>{{ lesson_plan.faculty}}</td>
+                        <td>{{ lesson_plan.name }}</td>
+                        <td>{{ lesson_plan.dept }}</td>
+                        <td>{{ lesson_plan.sem }}</td>
+                        <td>
+                            <table id="topicTable1" class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Topic</th>
+                                        <th>Status</th>
+                                        <th>Remark</th>
+                                        <th>Update</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for topic in lesson_plan.topics %}
+                                    <tr>
+                                        <td>{{ topic.topic_name }}</td>
+                        
+
+
+
+
+
+                                        <td>
+                                            <select id="status_{{ topic.topic_id }}">
+                                                <option value="co" {% if topic.status == 'co' %}selected{% endif %}>Completed</option>
+                                                <option value="ns" {% if topic.status == 'ns' %}selected{% endif %}>Not Started</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" id="remarks_{{ topic.topic_id }}" value="{{ topic.remarks }}">
+                                        </td>
+                                        <td>
+                                            <button onclick="updateTopic({{ topic.topic_id }})">Update</button>
+                                        </td>
+                                        
+
+
+                                    </tr>
+                                    {% endfor %}
+                                    
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.0/html2pdf.bundle.min.js"></script>
+<script>
+//     document.getElementById('exportBtn').addEventListener('click', function () {
+//       // Create a new Excel workbook
+//       var workbook = XLSX.utils.book_new();
+    
+//       // Extract data from the first table (topicTable)
+//       var firstTableData = [];
+    
+//       $('#topicTable tbody tr').each(function () {
+//     var faculty = $(this).find('td:eq(0)').text().trim();
+//     var lessonPlan = $(this).find('td:eq(1)').text().trim();
+//     var branch = $(this).find('td:eq(2)').text().trim();
+//     var sem = $(this).find('td:eq(3)').text().trim();
+//     var nestedContent = $(this).find('td:eq(4)').text().trim();
+
+//     // Split nested content into individual items
+//     var nestedItems = nestedContent.split('Update');
+
+//     // Add the first row to the data array
+//     var firstRow = [faculty, lessonPlan, branch, sem, nestedItems[0].trim()];
+//     firstTableData.push(firstRow);
+
+//     // Process subsequent rows from nested content
+//     for (var i = 1; i < nestedItems.length; i++) {
+//       var nestedRow = ['', '', '', '', nestedItems[i].trim()];
+//       firstTableData.push(nestedRow);
+//     }
+//   });
+    
+//       // Add the first table sheet to the workbook
+//       var firstTableSheet = XLSX.utils.aoa_to_sheet(firstTableData);
+//       XLSX.utils.book_append_sheet(workbook, firstTableSheet, 'TopicTable');
+    
+//       // Save the workbook to an Excel file
+//       XLSX.writeFile(workbook, 'exported_data.xlsx');
+//     });
+  
+  
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+        // Your JavaScript code here
+        document.getElementById('exportToPDF').addEventListener('click', function () {
+    // Set the options for html2pdf
+    var options = {
+        margin: 15,
+        filename: 'exported_document.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }  // Set orientation to 'landscape'
+    };
+    var targetElement = document.getElementById('export_element');
+    // Use html2pdf to export the entire page
+    html2pdf(targetElement, options);
+});
+    });
+
+
+
+
+
+
+
+    function updateTopic(topicId) {
+        var status = document.querySelector(`#status_${topicId}`).value;
+        var remarks = document.querySelector(`#remarks_${topicId}`).value;
+
+        // Perform an AJAX request to update the topic with the provided data
+        fetch(`/report/update_topic1/${topicId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `status=${encodeURIComponent(status)}&remarks=${encodeURIComponent(remarks)}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.success) {
+                    // Optionally, update the UI or provide feedback to the user
+                    alert('Topic updated successfully!');
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+    }
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+</script>
+
+{% endblock %}
