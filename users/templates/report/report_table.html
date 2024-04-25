@@ -1,0 +1,162 @@
+<!-- report_table.html -->
+
+{% extends 'report/main.html' %}
+
+{% block content %}
+    {% include 'report/admin_navbar.html' %}
+    <h2>Lesson Plan Report</h2>
+ <div id="export_element">
+    <div class="row">
+        <div class="col">
+            <div class="card card-body">
+                <form method="get" class="form-inline" id="my_filter_form">
+                    <div class="form-group mr-5">
+                        {{ myFilter.form.faculty_uname.label_tag }}
+                        {{ myFilter.form.faculty_uname }}
+                    </div>
+                    <div class="form-group mr-3">
+                        {{ myFilter.form.sem.label_tag }}
+                        {{ myFilter.form.sem }}
+                    </div>
+                    <div class="form-group mr-3">
+                        {{ myFilter.form.dept.label_tag }}
+                        {{ myFilter.form.dept }}
+                    </div>
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+   <div>
+        <table id="report_table" class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Topic</th>
+                    <th>Target Date</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for topic in myFilter.qs %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ topic.topic_name }}</td>
+                        <td>{{ topic.target_date }}</td>
+                        <td>{{ topic.status }}</td>
+                        <td>{{ topic.remarks }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+    <button id="exportToPDF" class="btn btn-primary mt-3">Export to PDF</button>
+    <button id="exportToExcel" class="btn btn-success mt-3">Export to Excel</button>
+<script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+
+<script>
+     document.addEventListener('DOMContentLoaded', function () {
+        // Existing code...
+
+        // Export to PDF
+        document.getElementById('exportToPDF').addEventListener('click', function () {
+    setTimeout(function () {
+        var options = {
+            margin: 1, // Adjust as needed
+            filename: 'exported_document.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        var targetElement = document.getElementById('export_element');
+        html2pdf(targetElement, options);
+    }, 500); // Adjust the delay time as needed
+});
+
+        // Export to Excel
+        document.getElementById('exportToExcel').addEventListener('click', function () {
+            var filterFieldData = getFilterFieldData();
+            var tableHeaders = getTableHeaders();
+            var selectedData = getSelectedData();
+
+            // Add filter field data as the first row
+            var exportData = [];
+            var filterFieldRow = filterFieldData.map(function (field) {
+                return field.name + ': ' + field.value;
+            });
+            exportData.push(filterFieldRow);
+
+            // Add table headers as the second row
+            exportData.push(tableHeaders);
+
+            // Add selected data
+            exportData = exportData.concat(selectedData);
+
+            // Export to Excel
+            if (exportData.length > 0) {
+                var wb = XLSX.utils.book_new();
+                var ws = XLSX.utils.aoa_to_sheet(exportData);
+                XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1');
+                XLSX.writeFile(wb, 'exported_document.xlsx');
+            } else {
+                alert('No data selected for export.');
+            }
+        });
+
+        // Function to get filter field data and values
+        function getFilterFieldData() {
+            var filterFieldData = [];
+            var filterForm = document.getElementById('my_filter_form');
+
+            if (filterForm) {
+                for (var i = 0; i < filterForm.elements.length; i++) {
+                    if (filterForm.elements[i].type !== 'button') {
+                        var fieldName = filterForm.elements[i].name;
+                        var fieldValue = filterForm.elements[i].value;
+                        filterFieldData.push({ name: fieldName, value: fieldValue });
+                    }
+                }
+            }
+
+            return filterFieldData;
+        }
+
+        // Function to get selected data from the table
+        function getSelectedData() {
+            var selectedData = [];
+            var table = document.getElementById('report_table');
+            var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+            for (var i = 0; i < rows.length; i++) {
+                var rowData = [];
+                var cells = rows[i].getElementsByTagName('td');
+                for (var j = 0; j < cells.length; j++) {
+                    rowData.push(cells[j].textContent.trim());
+                }
+                selectedData.push(rowData);
+            }
+
+            return selectedData
+        }
+
+        // Function to get table headers
+        function getTableHeaders() {
+            var tableHeaders = [];
+            var headerRow = document.getElementById('report_table').getElementsByTagName('thead')[0].getElementsByTagName('tr')[0];
+            var headerCells = headerRow.getElementsByTagName('th');
+
+            for (var i = 0; i < headerCells.length; i++) {
+                tableHeaders.push(headerCells[i].textContent.trim());
+            }
+
+            return tableHeaders;
+        }
+    });
+</script>
+
+
+    {% endblock %}

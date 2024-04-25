@@ -1,0 +1,451 @@
+<div id="productsContainer" class="container">
+    <div class="app-content" style="width: 100%;">
+        <div class="app-content-header">
+            <h1 class="app-content-headerText">Topics</h1>
+            <button class="mode-switch" title="Switch Theme">
+                <svg class="moon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" width="24" height="24" viewBox="0 0 24 24">
+                    <defs></defs>
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                </svg>
+            </button>
+            <button class="app-content-headerButton add-btn">Add Topic</button>
+            ]
+
+
+            <div class="modal fade" id="addTopicModal" tabindex="-1" role="dialog" aria-labelledby="addTopicModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTopicModalLabel">Add New Topic</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form for adding new topic -->
+                    <form id="addTopicForm">
+                        <div class="form-group">
+                            <label for="topic_name">Topic Name</label>
+                            <input type="text" class="form-control" id="topic_name" name="topic_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="faculty">Faculty</label>
+                            <select class="form-control" id="faculty" name="faculty" required>
+                                {% for user in faculty_list %}
+                                <option value="{{ user.email }}">{{ user.uname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dept">Department</label>
+                            <select class="form-control" id="dept" name="dept" required>
+                                <option value="none">----</option>
+                                <option value="civil">Civil</option>
+                                <option value="mech">Mechanical</option>
+                                <option value="eee">EEE</option>
+                                <option value="ece">ECE</option>
+                                <option value="cse">CSE</option>
+                                <option value="ai_ds">AI&DS</option>
+                                <option value="ds">DS</option>
+                                <option value="crt">CRT</option>
+                                <option value="hns">H&S</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sem">Semester</label>
+                            <select class="form-control" id="sem" name="sem" required>
+                                <option value="none">----</option>
+                                <option value="1-1">I-I</option>
+                                <option value="1-2">I-II</option>
+                                <option value="2-1">II-I</option>
+                                <option value="2-2">II-II</option>
+                                <option value="3-1">III-I</option>
+                                <option value="3-2">III-II</option>
+                                <option value="4-1">IV-I</option>
+                                <option value="4-2">IV-II</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="target_date">Target Date</label>
+                            <input type="date" class="form-control" id="target_date" name="target_date">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="ns">NS</option>
+                                <option value="co">CO</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="remarks">Remarks</label>
+                            <textarea class="form-control" id="remarks" name="remarks"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+        </div>
+        <div class="app-content-actions">
+            <input class="search-bar" placeholder="Search..." type="text">
+            <div class="app-content-actions-wrapper">
+                <div class="filter-button-wrapper">
+                    <button class="action-button filter jsFilter"><span>Filter</span><svg
+                            xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-filter">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                        </svg></button>
+                    <div class="filter-menu">
+                        <label>Category</label>
+                        <select>
+                            <option>All Categories</option>
+                            <option>Furniture</option>
+                            <option>Decoration</option>
+                            <option>Kitchen</option>
+                            <option>Bathroom</option>
+                        </select>
+                        <label>Status</label>
+                        <select>
+                            <option>All Status</option>
+                            <option>Active</option>
+                            <option>Disabled</option>
+                        </select>
+                        <div class="filter-menu-buttons">
+                            <button class="filter-button reset">
+                                Reset
+                            </button>
+                            <button class="filter-button apply">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button class="action-button list active" title="List View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-list">
+                        <line x1="8" y1="6" x2="21" y2="6" />
+                        <line x1="8" y1="12" x2="21" y2="12" />
+                        <line x1="8" y1="18" x2="21" y2="18" />
+                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                    </svg>
+                </button>
+                <button class="action-button grid" title="Grid View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-grid">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="products-area-wrapper tableView">
+            <div class="products-header">
+                <div class="product-cell image">
+                    Topic Name
+                    <button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="product-cell category">Faculty<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                <div class="product-cell status-cell">Dept<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                <div class="product-cell sales">dept<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                <div class="product-cell stock">sem<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                <div class="product-cell price">status<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                    <div class="product-cell price">Target__date<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                    <div class="product-cell price">Action<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+            </div>
+            {% for Topics in topics %}
+            <div class="products-row">
+                <button class="cell-more-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-more-vertical">
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="12" cy="5" r="1" />
+                        <circle cx="12" cy="19" r="1" />
+                    </svg>
+                </button>
+                <div class="product-cell image editable" data-field="topic_nam" id="name-{{ topicId }}">
+                    
+                    <span>{{ Topics.topic_name}}</span>
+                </div>
+                <div class="product-cell category editable" data-field="faculty" id="faculty-{{ topicId }}"><span class="cell-label"></span>{{ Topics.faculty }}</div>
+                <div class="product-cell status-cell editable" data-field="dept" id="dept-{{ topicId }}">
+                    <span class="cell-label"></span>
+                    <span class="status active">{{ Topics.dept }}</span>
+                </div>
+                <div class="product-cell sales editable" data-field="sem" id="sem-{{ topicId }}"><span class="cell-label"></span>{{ Topics.sem }}</div>
+                <div class="product-cell stock editable" data-field="target_date" id="target_date-{{ topicId }}"><span class="cell-label"></span>{{ Topics.target_date }}</div>
+                <div class="product-cell price editable" data-field="status" id="status{{ topicId }}"><span class="cell-label"></span>{{ Topics.status }}</div>
+                <div class="product-cell price editable" data-field="remarks" id="remarks-{{ topicId }}"><span class="cell-label"></span>{{ Topics.remarks }}</div>
+                <div class="product-cell price"><span class="cell-label"></span><button class="update-btn btn btn-primary" data-topic-id="{{ Topics.topic_id }}">Update</button> Update</button><button>Delete</button></div>
+            </div>    
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    var choices = {
+        dept: [
+            ['Civil', 'civil'], ['Mechanical', 'mech'], ['EEE', 'eee'],
+            ['ECE', 'ece'], ['CSE', 'cse'], ['AI&DS', 'ai_ds'],
+            ['DS', 'ds'], ['CRT', 'crt'], ['H&S', 'hns']
+        ],
+        sem: [
+            ['I-I', '1-1'], ['I-II', '1-2'], ['II-I', '2-1'],
+            ['II-II', '2-2'], ['III-I', '3-1'], ['III-II', '3-2'],
+            ['IV-I', '4-1'], ['IV-II', '4-2']
+        ],
+        status: [['CO', 'co'], ['NS', 'ns']]
+    };
+</script>
+
+<script>
+    $(document).ready(function () {
+        // Function to handle showing the modal when the add button is clicked
+        $('.add-btn').click(function () {
+            // Show the addTopicModal when the button is clicked
+            $('#addTopicModal').modal('show');
+        });
+
+        // Submit new topic form
+        $('#addTopicForm').submit(function (event) {
+            event.preventDefault();
+
+            // Get form data
+            var formData = $(this).serialize();
+
+            // Format date to YYYY-MM-DD or set to None if not provided
+            var targetDate = $('#target_date').val();
+            var formattedDate = formatDate(targetDate);
+
+            // Append the formatted date to the formData
+            formData += '&target_date=' + formattedDate;
+            console.log(formData)
+
+            // Perform an AJAX request to add new topic information
+            fetch('/accounts/add-topic/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.message) {
+                        // Optionally, update the UI or provide feedback to the user
+                        alert('Topic information added successfully!');
+                        // Reload the page or update the table with the new data
+                        location.reload();
+                    } else if (data.errors) {
+                        // Handle validation errors if any
+                        console.error(data.errors);
+                        alert('Error adding topic information. Please check the form data.');
+                    } else {
+                        alert('Unknown error occurred.');
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    alert('Error adding topic information');
+                })
+                .finally(() => {
+                    // Hide the add-topic-card after submission
+                    $('#add-topic-card').hide();
+                });
+        });
+ 
+     // Function to format date to YYYY-MM-DD or return empty string if not provided
+     function formatDate(dateString) {
+                var date = new Date(dateString);
+                return isNaN(date) ? 'None' : date.toISOString().split('T')[0];
+            }
+        });
+        $(document).ready(function () {
+    // Function to handle showing the modal when the add button is clicked
+    $('.add-btn').click(function () {
+        // Show the addTopicModal when the button is clicked
+        $('#addTopicModal').modal('show');
+    });
+});
+
+   
+$(document).ready(function () {
+        // Function to handle updating a topic
+        $('.update-btn').click(function () {
+            var row = $(this).closest('div.products-row');
+            var topicId = $(this).data('topic-id');
+
+            row.find('.editable').each(function () {
+                var value = $(this).text();
+                var field = $(this).data('field');
+                var inputElement;
+
+                if (field === 'target_date') {
+                    // Convert the date value to YYYY-MM-DD format
+                    var date = new Date(value);
+                    var year = date.getFullYear();
+                    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+                    var day = ('0' + date.getDate()).slice(-2);
+                    var formattedDate = year + '-' + month + '-' + day;
+                    // Create date input field for 'target_date'
+                    inputElement = '<input type="date" class="form-control" value="' + value + '" id="' + field + '-' + topicId + '">';
+                } else if (field in choices) {
+                    // Create dropdown for choices
+                    inputElement = '<select class="form-control" id="' + field + '-' + topicId + '">';
+                    choices[field].forEach(function (option) {
+                        var selected = (option[1] === value) ? 'selected' : '';
+                        inputElement += '<option value="' + option[1] + '" ' + selected + '>' + option[0] + '</option>';
+                    });
+                    inputElement += '</select>';
+                } else {
+                    // Create input field for non-choices
+                    inputElement = '<input type="text" class="form-control" value="' + value + '" id="' + field + '-' + topicId + '">';
+                }
+
+                $(this).html(inputElement);
+            });
+
+            // Replace 'Update' button with 'Save' button
+            $(this).replaceWith('<button class="save-btn btn btn-success" onclick="saveTopic(' + topicId + ')">Save</button>');
+        });
+    });
+  // Function to save topic information
+// Function to save topic information
+// Function to save topic information
+function saveTopic(topicId) {
+    // Retrieve values using document.getElementById
+    var dept = document.getElementById('dept-' + topicId).value;
+    var sem = document.getElementById('sem-' + topicId).value;
+    var targetDate = document.getElementById('target_date-' + topicId).value;
+    var status = document.getElementById('status-' + topicId).value;
+    var remarks = document.getElementById('remarks-' + topicId).value;
+
+    // Now you can use these values as needed
+    console.log("Department:", dept);
+    console.log("Semester:", sem);
+    console.log("Target Date:", targetDate);
+    console.log("Status:", status);
+    console.log("Remarks:", remarks);
+
+    // Further processing...
+
+    var requestData = {
+        dept: encodeURIComponent(dept),
+        sem: encodeURIComponent(sem),
+        target_date: encodeURIComponent(targetDate),
+        status: encodeURIComponent(status),
+        remarks: encodeURIComponent(remarks)
+    };
+
+    // Log request data to console
+    console.log('Request Data:', requestData);
+
+    // Perform an AJAX request to update topic information
+    fetch(`/accounts/update-topic/${topicId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: Object.keys(requestData).map(key => key + '=' + requestData[key]).join('&')
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response Data:', data);
+        if (data.success) {
+            // Optionally, update the UI or provide feedback to the user
+            alert('Topic information updated successfully!');
+
+            // Change button back to 'Update'
+            var updateBtn = document.querySelector('.products-row[data-topic-id="' + topicId + '"] .update-btn');
+            updateBtn.textContent = 'Update';
+
+            // Disable input fields
+            var editableCells = document.querySelectorAll('.products-row[data-topic-id="' + topicId + '"] .editable');
+            editableCells.forEach(cell => {
+                cell.contentEditable = false;
+            });
+        } else if (data.errors) {
+            // Handle validation errors if any
+            console.error('Validation Errors:', data.errors);
+            alert('Error updating topic information. Please check the form data.');
+        } else {
+            alert('Unknown error occurred.');
+        }
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+        alert('Error updating topic information');
+    });
+}
+
+</script>

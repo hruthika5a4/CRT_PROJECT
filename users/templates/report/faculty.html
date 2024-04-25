@@ -1,0 +1,67 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+
+<!-- Display user information in input boxes -->
+<label>Email:</label>
+<input type="text" id="email-input" value="{{ user.email }}" disabled>
+<br>
+<label>Password:</label>
+<input type="password" id="password-input" value="{{ user.password }}">
+<br>
+<label>User Type:</label>
+<select id="usertype-input">
+    <option value="admin" {% if user.usertype == 'admin' %}selected{% endif %}>Admin</option>
+    <option value="faculty" {% if user.usertype == 'faculty' %}selected{% endif %}>Faculty</option>
+</select>
+<br>
+<label>Contact:</label>
+<input type="text" id="contact-input" value="{{ user.contact }}">
+<br>
+<label>Department:</label>
+<input type="text" id="dept-input" value="{{ user.dept }}">
+<br>
+<button id="update-btn">Update</button>
+
+<script>
+    $(document).ready(function() {
+        // Handle update button click
+        $('#update-btn').on('click', function() {
+            // Collect updated data from input fields
+            var updatedData = {
+                email: $('#email-input').val(),
+                password: $('#password-input').val(),
+                usertype: $('#usertype-input').val(),
+                contact: $('#contact-input').val(),
+                dept: $('#dept-input').val()
+            };
+
+            // Perform an AJAX request to update user information
+            $.ajax({
+                url: '/accounts/update-user/',  // Replace with your server-side endpoint
+                type: 'POST',
+                data: updatedData,
+                success: function(response) {
+                    alert('User information updated successfully!');
+                    // Optionally, update the UI or provide feedback to the user
+                },
+                error: function(error) {
+                    alert('Error updating user information');
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

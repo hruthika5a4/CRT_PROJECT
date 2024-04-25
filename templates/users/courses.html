@@ -1,0 +1,307 @@
+<div id="productsContainer" class="container">
+    <div class="app-content" style="width: 100%;">
+        <div class="app-content-header">
+            <h1 class="app-content-headerText">Course</h1>
+            <button class="mode-switch" title="Switch Theme">
+                <svg class="moon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" width="24" height="24" viewBox="0 0 24 24">
+                    <defs></defs>
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                </svg>
+            </button>
+            <button id="addTopicButton" class="app-content-headerButton add-btn">Add Lesson Plan</button>
+
+            <!-- Modal for adding a new topic -->
+            <div class="modal fade" id="addTopicModal" tabindex="-1" role="dialog" aria-labelledby="addTopicModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addTopicModalLabel">Add New Topic</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post" id="addLessonPlanForm">
+                                {% csrf_token %}
+                                {{ lesson_plan_form.media }}
+                                <!-- Add hidden input fields for sem and dept -->
+                                <input type="hidden" id="semField" name="sem" value="">
+                                <input type="hidden" id="deptField" name="dept" value="">
+                                <!-- Loop through visible fields and print their names -->
+                                {% for field in lesson_plan_form.visible_fields %}
+                                    <div class="form-group">
+                                        <!-- Print the field name -->
+                                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        
+                                        {% if field.name == 'sem' %}
+                                            <!-- Add options for sem field -->
+                                            <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                                field.id_for_label : {{ field.id_for_label }}
+                                                {% for choice in field.field.choices %}
+                                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        {% elif field.name == 'dept' %}
+                                            <!-- Add options for dept field -->
+                                            <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                                {% for choice in field.field.choices %}
+                                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        {% elif field.name == 'topic_ids' %}
+                                            <!-- Add options for topic_ids field using SelectMultiple widget -->
+                                            <select multiple class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                                <!-- Options will be dynamically populated by JavaScript -->
+                                            </select>
+                                        {% else %}
+                                            <!-- For other fields, keep the existing logic -->
+                                            {% if field.field.choices %}
+                                                field.id_for_label : {{ field.id_for_label }}
+                                                <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                                    {% for choice in field.field.choices %}
+                                                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            {% elif field.field.get_internal_type == 'CharField' %}
+                                                <input type="text" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                                field.id_for_label : {{ field.id_for_label }}
+                                            {% elif field.field.get_internal_type == 'IntegerField' %}
+                                                <input type="number" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                            {% elif field.field.get_internal_type == 'DateField' %}
+                                                <input type="date" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                            {% else %}
+                                                <input type="text" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}">
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="saveTopicButton">Save</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+        <div class="app-content-actions">
+            <input class="search-bar" placeholder="Search..." type="text">
+            <div class="app-content-actions-wrapper">
+                <div class="filter-button-wrapper">
+                    <button class="action-button filter jsFilter"><span>Filter</span><svg
+                            xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-filter">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                        </svg></button>
+                    <div class="filter-menu">
+                        <label>Category</label>
+                        <select>
+                            <option>All Categories</option>
+                            <option>Furniture</option>
+                            <option>Decoration</option>
+                            <option>Kitchen</option>
+                            <option>Bathroom</option>
+                        </select>
+                        <label>Status</label>
+                        <select>
+                            <option>All Status</option>
+                            <option>Active</option>
+                            <option>Disabled</option>
+                        </select>
+                        <div class="filter-menu-buttons">
+                            <button class="filter-button reset">
+                                Reset
+                            </button>
+                            <button class="filter-button apply">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button class="action-button list active" title="List View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-list">
+                        <line x1="8" y1="6" x2="21" y2="6" />
+                        <line x1="8" y1="12" x2="21" y2="12" />
+                        <line x1="8" y1="18" x2="21" y2="18" />
+                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                    </svg>
+                </button>
+                <button class="action-button grid" title="Grid View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-grid">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="products-area-wrapper tableView">
+            <div class="products-header">
+                <div class="product-cell image">
+                    Name
+                    <button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="product-cell category">Faculty<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                <div class="product-cell status-cell">Dept<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                <div class="product-cell sales">sem<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                <div class="product-cell stock">topic ids<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+                <div class="product-cell price">action<button class="sort-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512">
+                            <path fill="currentColor"
+                                d="M496.1 138.3L375.7 17.9c-7.9-7.9-20.6-7.9-28.5 0L226.9 138.3c-7.9 7.9-7.9 20.6 0 28.5 7.9 7.9 20.6 7.9 28.5 0l85.7-85.7v352.8c0 11.3 9.1 20.4 20.4 20.4 11.3 0 20.4-9.1 20.4-20.4V81.1l85.7 85.7c7.9 7.9 20.6 7.9 28.5 0 7.9-7.8 7.9-20.6 0-28.5zM287.1 347.2c-7.9-7.9-20.6-7.9-28.5 0l-85.7 85.7V80.1c0-11.3-9.1-20.4-20.4-20.4-11.3 0-20.4 9.1-20.4 20.4v352.8l-85.7-85.7c-7.9-7.9-20.6-7.9-28.5 0-7.9 7.9-7.9 20.6 0 28.5l120.4 120.4c7.9 7.9 20.6 7.9 28.5 0l120.4-120.4c7.8-7.9 7.8-20.7-.1-28.5z" />
+                        </svg>
+                    </button></div>
+            </div>
+            {% for lessonPlan in lessonPlan %}
+            <div class="products-row">
+                <button class="cell-more-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-more-vertical">
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="12" cy="5" r="1" />
+                        <circle cx="12" cy="19" r="1" />
+                    </svg>
+                </button>
+                <div class="product-cell image">
+                    
+                    <span>{{ lessonPlan.name}}</span>
+                </div>
+                <div class="product-cell category"><span class="cell-label">Category:</span>{{ lessonPlan.faculty }}</div>
+                <div class="product-cell status-cell">
+                    <span class="cell-label">Status:</span>
+                    <span class="status active">{{ lessonPlan.dept }}</span>
+                </div>
+                <div class="product-cell sales"><span class="cell-label">Sales:</span>{{ lessonPlan.sem }}</div>
+                <div class="product-cell stock"><span class="cell-label">Stock:</span>{{lessonPlan.topic_ids }}</div>
+                <div class="product-cell price"><span class="cell-label"></span><button class="update-btn btn btn-primary" data-topic-id="{{ Topics.topic_id }}">Update</button></button><button>Delete</button></div>
+            </div>    
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+<script>
+        
+        $(document).ready(function () {
+    $('#addTopicButton').click(function () {
+        // Show the add-topic-modal when the button is clicked
+        $('#addTopicModal').modal('show');
+    });
+
+    $('#id_sem, #id_dept, #id_faculty').change(function () {
+        // Get selected values
+        var selectedSem = $('#id_sem').val();
+        var selectedDept = $('#id_dept').val();
+        var selectedFaculty = $('#id_faculty').val();
+
+        // Make an AJAX request to fetch topics based on sem and dept
+        $.ajax({
+            url: '/accounts/fetch-topics/',
+            type: 'GET',
+            data: {
+                'sem': selectedSem,
+                'dept': selectedDept,
+                'faculty': selectedFaculty,
+            },
+            success: function (data) {
+                console.log('Topics fetched successfully:', data);
+                // Update the topic dropdown with fetched topics
+                var topicDropdown = $('#id_topic_ids');
+                topicDropdown.empty();
+                data.forEach(function (topic) {
+                    topicDropdown.append($('<option>', {
+                        value: topic.id,
+                        text: topic.name
+                    }));
+                });
+            },
+            error: function (error) {
+                console.error('Error fetching topics:', error);
+            }
+        });
+    });
+
+    $('#saveTopicButton').click(function () {
+        // Get form data
+        var formData = $('#addLessonPlanForm').serialize();
+
+        // Perform an AJAX request to add new topic information
+        $.ajax({
+            url: '/accounts/add-lesson-plan/',
+            type: 'POST',
+            data: formData,
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function (data) {
+                console.log(data);
+                if (data.message) {
+                    // Optionally, update the UI or provide feedback to the user
+                    alert('Topic information added successfully!');
+                    // Reload the page or update the table with the new data
+                    location.reload();
+                } else if (data.error) {
+                    // Handle validation errors if any
+                    console.error(data.error);
+                    alert('Error adding topic information. Please check the form data.');
+                } else {
+                    alert('Unknown error occurred.');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', xhr.responseText);
+                alert('Error adding topic information. Check the console for more details.');
+            },
+            complete: function () {
+                // Hide the add-topic-modal after submission
+                $('#addTopicModal').modal('hide');
+            }
+        });
+    });
+});
+
+
+  </script>

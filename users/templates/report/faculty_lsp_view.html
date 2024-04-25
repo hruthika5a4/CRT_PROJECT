@@ -1,0 +1,263 @@
+<!-- report/main.html -->
+
+{% extends 'report/main.html' %}
+
+{% block content %}
+{% include 'report/navbar.html' %}
+
+
+<button id="addTopicButton" class="btn btn-primary float-right">Add New Topic</button>
+ 
+
+  <br><br>
+  <!-- Modal for adding a new topic -->
+  <div class="modal fade" id="addTopicModal" tabindex="-1" role="dialog" aria-labelledby="addTopicModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="addTopicModalLabel">Add New Topic</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              <div class="modal-body">
+                <form method="post" id="addLessonPlanForm">
+                  {% csrf_token %}
+                  {{ lesson_plan_form.media }}
+                  <!-- Add hidden input fields for sem and dept -->
+                  <input type="hidden" id="semField" name="sem" value="">
+                  <input type="hidden" id="deptField" name="dept" value="">
+                  <!-- Loop through visible fields and print their names -->
+                  {% for field in lesson_plan_form.visible_fields %}
+                      <div class="form-group">
+                          <!-- Print the field name -->
+                          
+                          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                          {% if field.name == 'faculty' %}
+    <!-- Set the value of the faculty field to the user's email -->
+    <input type="email" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" value="{{ faculty.email }}" readonly required>
+
+                          {% elif field.name == 'sem' %}
+                              
+                              <!-- Add options for sem field -->
+                              <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                field.id_for_label : {{ field.id_for_label }}
+                                  {% for choice in field.field.choices %}
+                                      <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                  {% endfor %}
+                              </select>
+                          
+                          {% elif field.name == 'dept' %}
+                              <!-- Add options for dept field -->
+                              <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                
+                                  {% for choice in field.field.choices %}
+                                      <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                  {% endfor %}
+                              </select>
+                              {% elif field.name == 'topic_ids' %}
+                              <!-- Add options for topic_ids field using SelectMultiple widget -->
+                              <select multiple class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                  <!-- Options will be dynamically populated by JavaScript -->
+                              </select>
+                          {% else %}
+                              <!-- For other fields, keep the existing logic -->
+                              {% if field.field.choices %}
+                                  field.id_for_label : {{ field.id_for_label }}
+                                  <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                      {% for choice in field.field.choices %}
+                                          <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                      {% endfor %}
+                                  </select>
+                              
+                              {% elif field.field.get_internal_type == 'CharField' %}
+                                  <input type="text" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                                  field.id_for_label : {{ field.id_for_label }}
+
+                              {% elif field.field.get_internal_type == 'IntegerField' %}
+                                  <input type="number" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                              {% elif field.field.get_internal_type == 'DateField' %}
+                                  <input type="date" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" required>
+                              {% else %}
+                                  <input type="text" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}">
+                              {% endif %}
+                          {% endif %}
+                      </div>
+                  {% endfor %}
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" id="saveTopicButton">Save</button>
+              </form>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- Your existing content (table, scripts, etc.) -->
+
+  {% if lesson_plans_data %}
+  <table class="table table-bordered table-striped">
+      <thead class="thead-dark">
+          <tr>
+              
+              <th>Course Name</th>
+              
+              <th>Department</th>
+              <th>Semester</th>
+              <th>Topics</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for lesson_plan_data in lesson_plans_data %}
+              <tr>
+                  
+                  <td>{{ lesson_plan_data.name }}</td>
+                 
+                  <td>{{ lesson_plan_data.dept }}</td>
+                  <td>{{ lesson_plan_data.sem }}</td>
+                  <td>
+                      <ul>
+                          {% for topic in lesson_plan_data.topics %}
+                              <li>{{ topic.topic_name }}</li>
+                          {% endfor %}
+                      </ul>
+                  </td>
+              </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+{% else %}
+  <p class="alert alert-info">No lesson plans found for {{ faculty.uname }}</p>
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+
+
+
+<script>
+        
+
+  $(document).ready(function () {
+      $('#addTopicButton').click(function () {
+          // Show the add-topic-modal when the button is clicked
+          $('#addTopicModal').modal('show');
+      });
+
+      $('#id_sem, #id_dept, #id_faculty').change(function () {
+          // Get selected values
+          console.log('hiiiiii')
+          var selectedSem = $('#id_sem').val();
+          var selectedDept = $('#id_dept').val();
+          var selectedFaculty = $('#id_faculty').val();
+
+
+          // Make an AJAX request to fetch topics based on sem and dept
+          jQuery.ajax({
+              url: '/accounts/fetch-topics/',  // Replace with your actual URL
+              type: 'GET',
+              data: {
+                  'sem': selectedSem,
+                  'dept': selectedDept,
+                  'faculty':selectedFaculty,
+              },
+              success: function (data) {
+                  console.log('Topics fetched successfully:', data);
+                  // Update the topic dropdown with fetched topics
+                  var topicDropdown = $('#id_topic_ids');
+                  topicDropdown.empty();
+                  data.forEach(function (topic) {
+                      topicDropdown.append($('<option>', {
+                          value: topic.id,
+                          text: topic.name
+                      }));
+                  });
+              },
+              error: function (error) {
+                  console.error('Error fetching topics:', error);
+              }
+          });
+      });
+
+      $('#saveTopicButton').click(function () {
+          // Get form data
+          var formData = $('#addLessonPlanForm').serialize();
+          console.log(formData)  
+          console.log('hiii')              // Perform an AJAX request to add new topic information
+          $.ajax({
+url: '/accounts/add-lesson-plan/',
+type: 'POST',
+data: formData,
+headers: {
+  'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+},
+success: function (data) {
+  console.log(data);
+  if (data.message) {
+      // Optionally, update the UI or provide feedback to the user
+      alert('Topic information added successfully!');
+      // Reload the page or update the table with the new data
+      location.reload();
+  } else if (data.errors) {
+      // Handle validation errors if any
+      console.error(data.errors);
+      alert('Error adding topic information. Please check the form data.');
+  } else {
+      alert('Unknown error occurred.');
+  }
+},
+error: function (xhr, status, error) {
+  console.error('AJAX Error:', xhr.responseText);
+  alert('Error adding topic information. Check the console for more details.');
+},
+complete: function () {
+  // Hide the add-topic-modal after submission
+  $('#addTopicModal').modal('hide');
+}
+});
+      });
+  });
+
+  // document.getElementById('exportBtn').addEventListener('click', function () {
+  //     // Extract data from the table
+  //     var data = [];
+  //     var headers = [];
+
+  //     // Get table headers
+  //     $('#lessonPlanTable thead th').each(function () {
+  //         headers.push($(this).text().trim());
+  //     });
+
+  //     // Get table data
+  //     $('#lessonPlanTable tbody tr').each(function () {
+  //         var row = [];
+  //         $(this).find('td').each(function () {
+  //             row.push($(this).text().trim());
+  //         });
+  //         data.push(row);
+  //     });
+
+  //     // Create a new Excel workbook
+  //     var workbook = XLSX.utils.book_new();
+  //     var sheet = XLSX.utils.aoa_to_sheet([headers].concat(data));
+
+  //     // Add the sheet to the workbook
+  //     XLSX.utils.book_append_sheet(workbook, sheet, 'LessonPlans');
+
+  //     // Save the workbook to an Excel file
+  //     XLSX.writeFile(workbook, 'exported_lesson_plans.xlsx');
+  // });
+
+  // document.getElementById('exportToPDF').addEventListener('click', export_function);
+
+  //   // Set the options for html2pdf
+  //   var options = {
+  //     margin: 10,
+  //     filename: 'Lesson_plan.pdf',
+  //     image: { type: 'jpeg', quality: 0.98 },
+  //     html2canvas: { scale: 2 },
+  //     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  //   };
+  //   // Use html2pdf to export the entire page
+  //   html2pdf(document.body, options);
+  // });
+</script>
+{% endblock %}
